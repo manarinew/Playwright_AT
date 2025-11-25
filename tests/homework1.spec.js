@@ -37,13 +37,23 @@ test.describe.only("Challenge", () => {
         expect(body.challenges[1].status).toBe(true);
     });
 
+    test ('03. Получить список всех тасок', async ({request}) => {
+       const getResponse = await request.get(`${apiUrl}/todos`, {headers});
+       const getResponseBody = await getResponse.json();
+       expect(getResponse.status()).toBe(200);
+       expect(getResponseBody.todos).toBeDefined();
+    });
+
+    test ('04. ')
+
     test ('05. Успешно получить таску по id', async({request}) => {``
         //console.log(`Номер таски ${taskId}`);
-        const response = await request.get(`${apiUrl}/todos/${taskId}`, {headers});
-        expect(response.ok()).toBeTruthy();
+        const getResponse = await request.get(`${apiUrl}/todos/${taskId}`, {headers});
+        expect(getResponse.ok()).toBeTruthy();
         //посмотрим, что имя задачи не пустое
-        const body = await response.json();
+        const body = await getResponse.json();
         expect(body.todos[0].title).not.toBe('');
+        expect(getResponse.status()).toBe(200);
     });
 
     test ('09. Успешное создание таски', async ({request}) => {
@@ -56,7 +66,7 @@ test.describe.only("Challenge", () => {
         expect(body.title).toBe(data.title);
         expect(body.description).toBe(data.description);
         expect(body.doneStatus).toBe(data.doneStatus);
-        })
+        });
 
     test (`23. Успешное удаление таски`, async ({request}) =>{
         //создадим таску, чтобы ее затем удалить запросом
@@ -74,7 +84,7 @@ test.describe.only("Challenge", () => {
         //проверим, что в теле ответа есть сообщение об ошибке
         const getResponseBody = await getResponse.json();
         expect(getResponseBody.errorMessages).toContain(`Could not find an instance with todos/${todoId}`);
-    })
+    });
 
     test (`16. Неуспешное обновление несуществующей таски`, async  ({request}) => {
         const getResponse = await request.get(`${apiUrl}/todos`,{headers});
@@ -89,5 +99,5 @@ test.describe.only("Challenge", () => {
         expect(putResponse.status()).toBe(400);
         const  putResponseBody = await putResponse.json();
         expect(putResponseBody.errorMessages).toContain(`Cannot create todo with PUT due to Auto fields id`);
-    })
+    });
 })
