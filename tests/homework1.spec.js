@@ -44,7 +44,10 @@ test.describe.only("Challenge", () => {
        expect(getResponseBody.todos).toBeDefined();
     });
 
-    test ('04. ')
+    test ('04. Отправить запрос на неверный эндпоинт', async ({request}) => {
+       const getResponse = await request.get(`${apiUrl}/todo`, {headers});
+       expect(getResponse.status()).toBe(404);
+    });
 
     test ('05. Успешно получить таску по id', async({request}) => {``
         //console.log(`Номер таски ${taskId}`);
@@ -54,6 +57,39 @@ test.describe.only("Challenge", () => {
         const body = await getResponse.json();
         expect(body.todos[0].title).not.toBe('');
         expect(getResponse.status()).toBe(200);
+    });
+
+    test ('06. Неуспешное получение несуществующей таски', async ({request}) => {
+        //соберем массив всех id тасок
+        const getResponseAll = await request.get(`${apiUrl}/todos`, {headers});
+        const getResponseBody = await getResponseAll.json();
+        const idArray = [];
+        for (let i = 0; i < getResponseBody.todos.length; i++) {
+            idArray[i] = getResponseBody.todos[i].id;
+        }
+        const maxId = Math.max(...idArray);
+        const getResponse = await request.get(`${apiUrl}/todos/${maxId+1}`, {headers});
+        expect(getResponse.status()).toBe(404);
+    });
+
+    test('07. Получить выполненные таски', async ({request}) => {
+        //тесты гоняются не по порядку, 58 челлендж может стартануть раньше и удалить все таски в базе
+        //создадим таску со статусом true post-запросом, чтобы точно пройти тест
+        //переопределим doneStatus в рамках этого теста
+        const dataWithDoneStatusTrue = {...data, doneStatus: true};
+        const postResponse = await request.post(`${apiUrl}/todos`, {headers, data: dataWithDoneStatusTrue});
+        expect(postResponse.ok()).toBeTruthy();
+        const getResponse = await request.get(`${apiUrl}/todos?doneStatus=true`, {headers});
+        expect(getResponse.status()).toBe(200);
+        const getResponseBody = await getResponse.json();
+        //проверим, что ответный массив метода не пустой
+        const todos = getResponseBody.todos;
+        expect(todos.length).toBeGreaterThan(0);
+        //проверка, что фильтр сработал верно
+        for (const i of todos){
+            expect(i.doneStatus).toBe(true);
+        }
+
     });
 
     test ('09. Успешное создание таски', async ({request}) => {
