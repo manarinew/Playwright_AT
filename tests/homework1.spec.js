@@ -92,6 +92,13 @@ test.describe.only("Challenge", () => {
 
     });
 
+    test('08. Успешно получить ответные заголовки', async ({request}) => {
+       const headResponse = await request.head(`${apiUrl}/todos`, {headers});
+       const headResponseBody = headResponse.headers();
+       expect(headResponseBody['x-challenger']).toBe(token);
+       expect(headResponse.status()).toBe(200);
+    });
+
     test ('09. Успешное создание таски', async ({request}) => {
         const response = await request.post(`${apiUrl}/todos`, {headers, data});
         const body = await response.json();
@@ -103,6 +110,17 @@ test.describe.only("Challenge", () => {
         expect(body.description).toBe(data.description);
         expect(body.doneStatus).toBe(data.doneStatus);
         });
+
+    test ('10. Неуспешное создание таски с неправильным статусом', async ({request}) => {
+        const dataWithInvalidStatus = {...data, doneStatus: 'invalid'};
+        const postResponse = await request.post(`${apiUrl}/todos`, {
+            headers,
+            data: dataWithInvalidStatus
+        });
+        const postResponseBody = await postResponse.json();
+        expect(postResponse.status()).toBe(400);
+        expect(postResponseBody.errorMessages[0]).toBe('Failed Validation: doneStatus should be BOOLEAN but was STRING');
+    });
 
     test (`23. Успешное удаление таски`, async ({request}) =>{
         //создадим таску, чтобы ее затем удалить запросом
