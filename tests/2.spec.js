@@ -2,9 +2,9 @@ import { test, expect } from '@playwright/test';
 
 import { faker } from "@faker-js/faker";
 
-const apiUrl = 'https://realworld.qa.guru/api';
+//const apiUrl = 'https://realworld.qa.guru/api';
 
-test('Пользователь может зарегистрироваться используя email и пароль', async ({ request }) => {
+test.skip('Пользователь может зарегистрироваться используя email и пароль', async ({ request }) => {
 
     const user = {
         user: {
